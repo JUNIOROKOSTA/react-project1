@@ -1,64 +1,63 @@
-import logo from './logo.svg';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import './App.css';
-import { useState } from 'react';
+import P from 'prop-types';
 
-// function App() {
-//   return (
-//     <div className="App">
-//       <header className="App-header">
-//         <img src={logo} className="App-logo" alt="logo" />
-//       </header>
-//     </div>
-//   );
-// }
-
-// class App extends Component {
-//   constructor(props) {
-//     super(props);
-
-//     this.state = {
-//       reverse: true,
-//     };
-//   }
-
-//   render() {
-//     const { reverse } = this.state;
-//     const mapReverse = reverse ? 'reverse' : '';
-//     return (
-//       <div className="App">
-//         <header className="App-header">
-//           <img src={logo} className={`App-logo ${mapReverse}`} alt="logo" />
-//           <button type="button" onClick={() => this.setState({ reverse: !reverse })}>
-//             Spin {mapReverse}
-//           </button>
-//         </header>
-//       </div>
-//     );
-//   }
-// }
-
-function App() {
-  // const { reverse } = this.state;
-  const [reverse, setReverse] = useState(false);
-  const mapReverse = reverse ? 'reverse' : '';
-  const [counter, setCounter] = useState(0);
-
-  const handleClick = () => {
-    setCounter(counter + 1);
-    setReverse(!reverse);
-  };
-
+const Display = ({ props }) => {
   return (
-    <div className="App">
-      <header className="App-header">
-        <h1>Contador: {counter}</h1>
-        <img src={logo} className={`App-logo ${mapReverse}`} alt="logo" />
-        <button type="button" onClick={handleClick}>
-          Spin {mapReverse}
-        </button>
-      </header>
+    <>
+      <h2
+        style={{
+          background: '#fff',
+          width: '500px',
+          color: 'black',
+          textAlign: 'right',
+        }}
+      >
+        {props}
+      </h2>
+    </>
+  );
+};
+const InputCalc = ({ props }) => {
+  const handleCalc = (valor) => {
+    const result = eval(valor);
+
+    valorRef.current.value = result;
+    props(result);
+  };
+  const valorRef = useRef();
+  return (
+    <div>
+      <input
+        ref={valorRef}
+        type="text"
+        onChange={(e) => props(e.target.value)}
+      />
+      <button onClick={() => handleCalc(valorRef.current.value)}> = </button>
     </div>
   );
-}
+};
 
-export default App;
+export const App = () => {
+  const [valueDisplay, setValueDisplay] = useState(0);
+  useEffect(() => {
+    return () => {
+      setValueDisplay(0);
+    };
+  }, [setValueDisplay]);
+  return (
+    <div className="App-header">
+      <h1>Calculadora</h1>
+      <Display props={valueDisplay} />
+      <InputCalc props={setValueDisplay} />
+    </div>
+  );
+};
+
+Display.propTypes = {
+  props: P.node.isRequired,
+};
+
+InputCalc.propTypes = {
+  props: P.func.isRequired,
+};
