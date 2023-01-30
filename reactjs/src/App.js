@@ -1,63 +1,47 @@
-import { useCallback, useEffect, useRef, useState } from 'react';
+import {
+  createContext,
+  useCallback,
+  useContext,
+  useEffect,
+  useRef,
+  useState,
+} from 'react';
 import './App.css';
 import P from 'prop-types';
 
-const Display = ({ props }) => {
+const BaseContext = createContext();
+
+const RenderContext = ({ children }) => {
+  const [isOn, setIsOn] = useState(false);
+  const onTurn = () => setIsOn((s) => !s);
+  const [text1, setText1] = useState('Btn');
   return (
-    <>
-      <h2
-        style={{
-          background: '#fff',
-          width: '500px',
-          color: 'black',
-          textAlign: 'right',
-        }}
-      >
-        {props}
-      </h2>
-    </>
+    <BaseContext.Provider value={{ isOn, onTurn, text1 }}>
+      {children}
+    </BaseContext.Provider>
   );
 };
-const InputCalc = ({ props }) => {
-  const handleCalc = (valor) => {
-    const result = eval(valor);
 
-    valorRef.current.value = result;
-    props(result);
-  };
-  const valorRef = useRef();
+const TurnButton = ({ ...props }) => {
+  const { isOn, onTurn, text1 } = useContext(BaseContext);
   return (
-    <div>
-      <input
-        ref={valorRef}
-        type="text"
-        onChange={(e) => props(e.target.value)}
-      />
-      <button onClick={() => handleCalc(valorRef.current.value)}> = </button>
-    </div>
+    <button onClick={onTurn}>
+      {text1} Turn {isOn ? 'OFF' : 'ON'}
+    </button>
   );
 };
 
 export const App = () => {
-  const [valueDisplay, setValueDisplay] = useState(0);
-  useEffect(() => {
-    return () => {
-      setValueDisplay(0);
-    };
-  }, [setValueDisplay]);
   return (
     <div className="App-header">
-      <h1>Calculadora</h1>
-      <Display props={valueDisplay} />
-      <InputCalc props={setValueDisplay} />
+      <RenderContext>
+        <h1>Oi </h1>
+        <TurnButton />
+      </RenderContext>
     </div>
   );
 };
 
-Display.propTypes = {
-  props: P.node.isRequired,
-};
-
-InputCalc.propTypes = {
-  props: P.func.isRequired,
+RenderContext.propTypes = {
+  children: P.node.isRequired,
 };
